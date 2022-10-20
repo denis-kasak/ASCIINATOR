@@ -33,7 +33,7 @@ def processVideo():
 def buildGui():
     window = tk.Tk()
 
-    window.geometry("500x500")
+    window.geometry("100x100")
 
     frame_a = tk.Frame()
     label_a = tk.Label(master=frame_a, text="I'm in Frame A")

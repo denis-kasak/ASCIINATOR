@@ -21,8 +21,8 @@ def getclosest(charlist, target):
             return i
 
 
-def img2ascii(img, indeximg):
-    charlist = sortfonts()
+def img2ascii(img, indeximg,charlist):
+
 
     maxx = charlist[0]
     maxy = charlist[1]
@@ -61,9 +61,9 @@ def img2ascii(img, indeximg):
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
 
-    for i in range(len(piclist)):
-        for j in range(len(piclist[i])):
-            piclist[i][j] = cv2.imread(piclist[i][j], cv2.IMREAD_UNCHANGED)
+    # for i in range(len(piclist)):
+    #     for j in range(len(piclist[i])):
+    #         piclist[i][j] = cv2.imread(piclist[i][j], cv2.IMREAD_UNCHANGED)
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
@@ -71,12 +71,10 @@ def img2ascii(img, indeximg):
     cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
 
 
-def processalive(p):
-    if p.poll() is None:
-        return True
-    else:
-        return False
-
+def prepcharlist(charlist):
+    for i in range(len(charlist[2])):
+        charlist[2][i][1]=cv2.imread(charlist[2][i][1])
+    return charlist
 
 def frames2ascii():
     i = 0
@@ -84,6 +82,8 @@ def frames2ascii():
     ready = True
     numfiles = len([name for name in os.listdir("./frames_in/") if os.path.isfile(os.path.join("./frames_in/", name))])
     finishedfiles = 0
+    charlist = sortfonts()
+    charlist = prepcharlist(charlist)
 
     while os.path.isfile("./frames_in/frame_" + str(i) + ".jpg"):
 
@@ -100,13 +100,13 @@ def frames2ascii():
 
         if ready:
             path = "./frames_in/frame_" + str(i) + ".jpg"
-            p = Process(target=procstart, args=(path, i))
+            p = Process(target=procstart, args=(path, i, charlist))
             pid.append(p)
             p.start()
             i += 1
     print("100.00% fertig")
 
 
-def procstart(path, i):
+def procstart(path, i, charlist):
     img = cv2.imread(path)
-    img2ascii(img, i)
+    img2ascii(img, i, charlist)
