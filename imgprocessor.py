@@ -61,26 +61,28 @@ def img2ascii(img, indeximg, charlist, bgr):
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
 
-    for i in range(len(piclist)):
-        for j in range(len(piclist[i])):
-            for k in range(len(piclist[i][j])):
-                for l in range(len(piclist[i][j][k])):
-                    piclist[i][j][k][l][0] = bgr[0]
-                    piclist[i][j][k][l][1] = bgr[1]
-                    piclist[i][j][k][l][2] = bgr[2]
+
+
+
 
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
 
+    for y in range(len(piclist)):
+        for x in range(len(piclist[y])):
+            piclist[y][x][0] = bgr[0]
+            piclist[y][x][1] = bgr[1]
+            piclist[y][x][2] = bgr[2]
+
     piclist = cv2.resize(piclist, [1920, 1080])
 
-    cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
+    cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
 
 def prepcharlist(charlist):
     for i in range(len(charlist[2])):
-        charlist[2][i][1] = cv2.imread(charlist[2][i][1])
+        charlist[2][i][1] = cv2.imread(charlist[2][i][1], cv2.IMREAD_UNCHANGED)
     return charlist
 
 
@@ -121,7 +123,6 @@ def frames2ascii(bgr):
 def procstart(path, i, charlist, bgr):
     img = cv2.imread(path)
     img2ascii(img, i, charlist, bgr)
-
 
 def combinevideo():
     img_array = []
