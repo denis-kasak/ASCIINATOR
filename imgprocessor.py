@@ -1,5 +1,7 @@
+import glob
 import multiprocessing
 import os
+import shutil
 from multiprocessing import Process
 
 import cv2
@@ -21,15 +23,13 @@ def getclosest(charlist, target):
             return i
 
 
-def img2ascii(img, indeximg,charlist):
-
-
+def img2ascii(img, indeximg, charlist):
     maxx = charlist[0]
     maxy = charlist[1]
     charlist = charlist[2]
 
-    maxx = maxx // 2
-    maxy = maxy // 2
+    maxx = maxx // 3
+    maxy = maxy // 3
 
     h = img.shape[0]
     w = img.shape[1]
@@ -61,22 +61,25 @@ def img2ascii(img, indeximg,charlist):
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
 
-    # for i in range(len(piclist)):
-    #     for j in range(len(piclist[i])):
-    #         piclist[i][j] = cv2.imread(piclist[i][j], cv2.IMREAD_UNCHANGED)
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
+
+    piclist = cv2.resize(piclist, [1920,1080])
 
     cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
 
 
 def prepcharlist(charlist):
     for i in range(len(charlist[2])):
-        charlist[2][i][1]=cv2.imread(charlist[2][i][1])
+        charlist[2][i][1] = cv2.imread(charlist[2][i][1])
     return charlist
 
+
 def frames2ascii():
+    if os.path.exists("./frames_out/"):
+        shutil.rmtree("./frames_out/")
+    os.mkdir("./frames_out/")
     i = 0
     pid = []
     ready = True
@@ -91,7 +94,7 @@ def frames2ascii():
             for j in range(len(pid)):
                 if not pid[j].is_alive():
                     finishedfiles += 1
-                    print(f'{100*finishedfiles/numfiles:5.2f}'+"% fertig")
+                    print(f'{100 * finishedfiles / numfiles:5.2f}' + "% fertig")
                     pid[j].join()
                     pid.pop(j)
                     ready = True
@@ -110,3 +113,27 @@ def frames2ascii():
 def procstart(path, i, charlist):
     img = cv2.imread(path)
     img2ascii(img, i, charlist)
+
+
+def combinevideo():
+    img_array = []
+    # for filename in glob.glob('./frames_out/*.jpg'):
+    i = 0
+    while os.path.isfile("./frames_out/" + str(i) + ".png"):
+        path = "./frames_out/" + str(i) + ".png"
+        img = cv2.imread(path)
+        height, width, layers = img.shape
+        size = (width, height)
+        img_array.append(img)
+        i += 1
+
+    if os.path.isfile('output.mp4'):
+        shutil.rmtree("output.mp4")
+
+    out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'h264'), 15, size)
+
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+    out.release()
+
+combinevideo()
