@@ -1,9 +1,8 @@
 import multiprocessing
 import os
+import time
 from multiprocessing import Process
-
 import cv2
-
 from fontextractor import sortfonts
 
 
@@ -38,6 +37,7 @@ def img2ascii(img, indeximg):
 
     piclist = []
 
+    start = time.time()
     for y in range(0, h, maxy):
         piclist.append([])
         for x in range(0, w, maxx):
@@ -46,18 +46,26 @@ def img2ascii(img, indeximg):
             for i in range(maxx):
                 for j in range(maxy):
                     try:
-                        avg += img[y + j][x + i]/256
+                        avg += img[y + j][x + i] / 256
                     except IndexError:
                         pass
             avg = avg / (maxx * maxy)
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
+    end = time.time()
+    print("for1: " + str(end - start))
 
+    start = time.time()
     for i in range(len(piclist)):
         for j in range(len(piclist[i])):
             piclist[i][j] = cv2.imread(piclist[i][j], cv2.IMREAD_UNCHANGED)
+    end = time.time()
+    print("for2: " + str(end - start))
+    start = time.time()
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
+    end = time.time()
+    print("for3: " + str(end - start))
     piclist = cv2.vconcat(piclist)
 
     cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
@@ -83,7 +91,7 @@ def frames2ascii():
             for j in range(len(pid)):
                 if not pid[j].is_alive():
                     finishedfiles += 1
-                    print(f'{100*finishedfiles/numfiles:5.2f}'+"% fertig")
+                    print(f'{100 * finishedfiles / numfiles:5.2f}' + "% fertig")
                     pid[j].join()
                     pid.pop(j)
                     ready = True
