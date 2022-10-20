@@ -4,3 +4,4 @@ venv/Lib
 frames_out/
 frames_in/
 res/chars/
+__pycache__

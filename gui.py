@@ -1,20 +1,10 @@
 import os.path
-import subprocess
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import cv2
 
+from imgprocessor import frames2ascii
 from splitvideo import splitVideo
-import shutil
-
-
-def getVideo():
-    videoPath = askopenfilename(filetypes=[("Videos", "*")])
-    if os.path.exists("./frames_in/"):
-        shutil.rmtree("./frames_in/")
-    os.mkdir("./frames_in/")
-    splitVideo(videoPath)
-    pass
 
 
 def combineVideo():
@@ -35,14 +25,9 @@ def combineVideo():
 
 
 def processVideo():
-    getVideo()
-
-    # c++ Programm wird gestartet
-    p = subprocess.Popen(['a.exe', ''])
-    while p.poll() is None:
-        pass
-    # c++ Programm ist fertig
-    combineVideo()
+    videoPath = askopenfilename(filetypes=[("Videos", "*")])
+    splitVideo(videoPath)
+    frames2ascii()
 
 
 def buildGui():

@@ -1,7 +1,15 @@
+import os
+import shutil
+
 import cv2
 
 
 def splitVideo(path):
+
+    if os.path.exists("./frames_in/"):
+        shutil.rmtree("./frames_in/")
+    os.mkdir("./frames_in/")
+
     capture = cv2.VideoCapture(path)
 
     frameNr = 0
