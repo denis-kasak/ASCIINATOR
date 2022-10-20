@@ -28,21 +28,13 @@ def img2ascii(img, indeximg):
     maxy = charlist[1]
     charlist = charlist[2]
 
-    maxx = maxx // 2
-    maxy = maxy // 2
+    maxx = maxx // 4
+    maxy = maxy // 4
 
     h = img.shape[0]
     w = img.shape[1]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    matrix = []
-
-    for y in range(h):
-        matrix.append([])
-        for x in range(w):
-            matrix[y].append([])
-            matrix[y][x] = img[y][x] / 256
 
     piclist = []
 
@@ -54,7 +46,7 @@ def img2ascii(img, indeximg):
             for i in range(maxx):
                 for j in range(maxy):
                     try:
-                        avg += matrix[y + j][x + i]
+                        avg += img[y + j][x + i]/256
                     except IndexError:
                         pass
             avg = avg / (maxx * maxy)

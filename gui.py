@@ -1,4 +1,5 @@
 import os.path
+import time
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import cv2
@@ -25,9 +26,12 @@ def combineVideo():
 
 
 def processVideo():
+    start = time.time()
     videoPath = askopenfilename(filetypes=[("Videos", "*")])
     splitVideo(videoPath)
     frames2ascii()
+    end = time.time()
+    print("Umwandlung dauerte "+str(end-start)+" Sekunden")
 
 
 def buildGui():
