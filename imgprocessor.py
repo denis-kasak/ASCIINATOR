@@ -23,7 +23,7 @@ def getclosest(charlist, target):
             return i
 
 
-def img2ascii(img, indeximg, charlist):
+def img2ascii(img, indeximg, charlist, bgr):
     maxx = charlist[0]
     maxy = charlist[1]
     charlist = charlist[2]
@@ -61,11 +61,19 @@ def img2ascii(img, indeximg, charlist):
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
 
+    for i in range(len(piclist)):
+        for j in range(len(piclist[i])):
+            for k in range(len(piclist[i][j])):
+                for l in range(len(piclist[i][j][k])):
+                    piclist[i][j][k][l][0] = bgr[0]
+                    piclist[i][j][k][l][1] = bgr[1]
+                    piclist[i][j][k][l][2] = bgr[2]
+
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
 
-    piclist = cv2.resize(piclist, [1920,1080])
+    piclist = cv2.resize(piclist, [1920, 1080])
 
     cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
 
@@ -76,7 +84,7 @@ def prepcharlist(charlist):
     return charlist
 
 
-def frames2ascii():
+def frames2ascii(bgr):
     if os.path.exists("./frames_out/"):
         shutil.rmtree("./frames_out/")
     os.mkdir("./frames_out/")
@@ -103,16 +111,16 @@ def frames2ascii():
 
         if ready:
             path = "./frames_in/frame_" + str(i) + ".jpg"
-            p = Process(target=procstart, args=(path, i, charlist))
+            p = Process(target=procstart, args=(path, i, charlist, bgr))
             pid.append(p)
             p.start()
             i += 1
     print("100.00% fertig")
 
 
-def procstart(path, i, charlist):
+def procstart(path, i, charlist, bgr):
     img = cv2.imread(path)
-    img2ascii(img, i, charlist)
+    img2ascii(img, i, charlist, bgr)
 
 
 def combinevideo():
@@ -128,12 +136,10 @@ def combinevideo():
         i += 1
 
     if os.path.isfile('output.mp4'):
-        shutil.rmtree("output.mp4")
+        os.remove("output.mp4")
 
     out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'h264'), 15, size)
 
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
-
-combinevideo()
