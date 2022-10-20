@@ -4,8 +4,9 @@ from tkinter.colorchooser import askcolor
 from tkinter.filedialog import askopenfilename
 import cv2
 
-from imgprocessor import frames2ascii, combinevideo
-from splitvideo import splitVideo
+import imgprocessor
+import colorvideo
+import splitvideo
 
 path = ""
 font_bgr = []
@@ -13,9 +14,11 @@ bg_bgr = []
 
 
 def processVideo():
-    splitVideo(path)
-    frames2ascii(font_bgr)
-    combinevideo()
+    splitvideo.splitVideo(path)
+    imgprocessor.frames2ascii(font_bgr)
+    imgprocessor.combinevideo()
+    colorvideo.colorvideo(font_bgr)
+    colorvideo.combinevideo()
 
 
 def setpath():

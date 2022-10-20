@@ -1,10 +1,15 @@
 import glob
+import math
 import multiprocessing
 import os
 import shutil
 from multiprocessing import Process
 
+import splitvideo
+from splitvideo import splitVideo
+
 import cv2
+import numpy
 
 from fontextractor import sortfonts
 
@@ -28,8 +33,8 @@ def img2ascii(img, indeximg, charlist, bgr):
     maxy = charlist[1]
     charlist = charlist[2]
 
-    maxx = maxx // 3
-    maxy = maxy // 3
+    maxx = maxx // 2
+    maxy = maxy // 2
 
     h = img.shape[0]
     w = img.shape[1]
@@ -61,23 +66,13 @@ def img2ascii(img, indeximg, charlist, bgr):
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
 
-
-
-
-
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
 
-    for y in range(len(piclist)):
-        for x in range(len(piclist[y])):
-            piclist[y][x][0] = bgr[0]
-            piclist[y][x][1] = bgr[1]
-            piclist[y][x][2] = bgr[2]
-
     piclist = cv2.resize(piclist, [1920, 1080])
 
-    cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+    cv2.imwrite("./frames_out/" + str(indeximg) + ".png", piclist)
 
 
 def prepcharlist(charlist):
@@ -117,6 +112,8 @@ def frames2ascii(bgr):
             pid.append(p)
             p.start()
             i += 1
+    for j in pid:
+        j.join()
     print("100.00% fertig")
 
 
@@ -124,13 +121,14 @@ def procstart(path, i, charlist, bgr):
     img = cv2.imread(path)
     img2ascii(img, i, charlist, bgr)
 
+
 def combinevideo():
     img_array = []
-    # for filename in glob.glob('./frames_out/*.jpg'):
     i = 0
+
     while os.path.isfile("./frames_out/" + str(i) + ".png"):
         path = "./frames_out/" + str(i) + ".png"
-        img = cv2.imread(path)
+        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
         height, width, layers = img.shape
         size = (width, height)
         img_array.append(img)
@@ -139,8 +137,11 @@ def combinevideo():
     if os.path.isfile('output.mp4'):
         os.remove("output.mp4")
 
-    out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'h264'), 15, size)
+    out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'h264'), 30, size)
 
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
+
+
+
