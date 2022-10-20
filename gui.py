@@ -8,12 +8,13 @@ from imgprocessor import frames2ascii, combinevideo
 from splitvideo import splitVideo
 
 path = ""
-bgr = []
+font_bgr = []
+bg_bgr = []
 
 
 def processVideo():
     splitVideo(path)
-    frames2ascii(bgr)
+    frames2ascii(font_bgr)
     combinevideo()
 
 
@@ -22,12 +23,20 @@ def setpath():
     path = askopenfilename(filetypes=[("Videos", "*")])
 
 
-def setcolor():
+def setfontcolor():
     input = askcolor(color=None)[0]
-    global bgr
-    bgr.append(input[2])
-    bgr.append(input[1])
-    bgr.append(input[0])
+    global font_bgr
+    font_bgr.append(input[2])
+    font_bgr.append(input[1])
+    font_bgr.append(input[0])
+
+
+def setbgcolor():
+    input = askcolor(color=None)[0]
+    global bg_bgr
+    bg_bgr.append(input[2])
+    bg_bgr.append(input[1])
+    bg_bgr.append(input[0])
 
 
 def buildGui():
@@ -43,8 +52,11 @@ def buildGui():
     btnVideo = tk.Button(frame_a, text="Video auswählen", command=(lambda: setpath()))
     btnVideo.pack()
 
-    btnColor = tk.Button(frame_a, text="Farbe auswählen", command=(lambda: setcolor()))
-    btnColor.pack()
+    btnFontColor = tk.Button(frame_a, text="Schriftfarbe auswählen", command=(lambda: setfontcolor()))
+    btnFontColor.pack()
+
+    btnBgColor = tk.Button(frame_a, text="Hintergrundfarbe auswählen", command=(lambda: setbgcolor()))
+    btnBgColor.pack()
 
     btnStart = tk.Button(frame_a, text="start", command=(lambda: processVideo()))
     btnStart.pack()
