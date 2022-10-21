@@ -49,8 +49,6 @@ def img2ascii(img, indeximg, charlist, color):
 
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
-    end = time.time()
-    print("for3: " + str(end - start))
     piclist = cv2.vconcat(piclist)
 
     piclist = cv2.resize(piclist, [1920, 1080])
