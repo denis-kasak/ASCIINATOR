@@ -1,50 +1,69 @@
 import os.path
 import time
 import tkinter as tk
+from tkinter.colorchooser import askcolor
 from tkinter.filedialog import askopenfilename
 import cv2
 
-from imgprocessor import frames2ascii
-from splitvideo import splitVideo
+import imgprocessor
+import colorvideo
+import splitvideo
 
-
-def combineVideo():
-    image_folder = './frames_in/'
-    video_name = 'video.avi'
-
-    images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
-    frame = cv2.imread(os.path.join(image_folder, images[0]))
-    height, width, layers = frame.shape
-
-    video = cv2.VideoWriter(video_name, 0, 1, (width, height))
-
-    for image in images:
-        video.write(cv2.imread(os.path.join(image_folder, image)))
-
-    cv2.destroyAllWindows()
-    video.release()
+path = ""
+font_bgr = []
+bg_bgr = []
 
 
 def processVideo():
-    start = time.time()
-    videoPath = askopenfilename(filetypes=[("Videos", "*")])
-    splitVideo(videoPath)
-    frames2ascii()
-    end = time.time()
-    print("Umwandlung dauerte "+str(end-start)+" Sekunden")
+    splitvideo.splitVideo(path)
+    imgprocessor.frames2ascii(font_bgr)
+    imgprocessor.combinevideo()
+    colorvideo.colorvideo(font_bgr)
+    colorvideo.combinevideo()
+
+
+def setpath():
+    global path
+    path = askopenfilename(filetypes=[("Videos", "*")])
+
+
+def setfontcolor():
+    input = askcolor(color=None)[0]
+    global font_bgr
+    font_bgr.append(input[2])
+    font_bgr.append(input[1])
+    font_bgr.append(input[0])
+
+def setbgcolor():
+    input = askcolor(color=None)[0]
+    global bg_bgr
+    bg_bgr.append(input[2])
+    bg_bgr.append(input[1])
+    bg_bgr.append(input[0])
+
 
 
 def buildGui():
     window = tk.Tk()
 
-    window.geometry("500x500")
+    window.geometry("200x200")
 
     frame_a = tk.Frame()
-    label_a = tk.Label(master=frame_a, text="I'm in Frame A")
+
+    label_a = tk.Label(master=frame_a, text="Video in Charakter umwandeln:")
     label_a.pack()
 
-    btnFile = tk.Button(frame_a, text="Video auswählen", command=(lambda: processVideo()))
-    btnFile.pack()
+    btnVideo = tk.Button(frame_a, text="Video auswählen", command=(lambda: setpath()))
+    btnVideo.pack()
+
+    btnFontColor = tk.Button(frame_a, text="Schriftfarbe auswählen", command=(lambda: setfontcolor()))
+    btnFontColor.pack()
+
+    btnBgColor = tk.Button(frame_a, text="Hintergrundfarbe auswählen", command=(lambda: setbgcolor()))
+    btnBgColor.pack()
+
+    btnStart = tk.Button(frame_a, text="start", command=(lambda: processVideo()))
+    btnStart.pack()
 
     frame_a.pack()
 
