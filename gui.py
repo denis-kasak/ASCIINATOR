@@ -1,4 +1,5 @@
 import os.path
+import time
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import askopenfilename
@@ -33,13 +34,13 @@ def setfontcolor():
     font_bgr.append(input[1])
     font_bgr.append(input[0])
 
-
 def setbgcolor():
     input = askcolor(color=None)[0]
     global bg_bgr
     bg_bgr.append(input[2])
     bg_bgr.append(input[1])
     bg_bgr.append(input[0])
+
 
 
 def buildGui():

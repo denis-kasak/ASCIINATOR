@@ -10,7 +10,6 @@ from splitvideo import splitVideo
 
 import cv2
 import numpy
-
 from fontextractor import sortfonts
 
 
@@ -33,24 +32,17 @@ def img2ascii(img, indeximg, charlist, bgr):
     maxy = charlist[1]
     charlist = charlist[2]
 
-    maxx = maxx // 2
-    maxy = maxy // 2
+    maxx = maxx // 4
+    maxy = maxy // 4
 
     h = img.shape[0]
     w = img.shape[1]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    matrix = []
-
-    for y in range(h):
-        matrix.append([])
-        for x in range(w):
-            matrix[y].append([])
-            matrix[y][x] = img[y][x] / 256
-
     piclist = []
 
+    start = time.time()
     for y in range(0, h, maxy):
         piclist.append([])
         for x in range(0, w, maxx):
@@ -59,15 +51,19 @@ def img2ascii(img, indeximg, charlist, bgr):
             for i in range(maxx):
                 for j in range(maxy):
                     try:
-                        avg += matrix[y + j][x + i]
+                        avg += img[y + j][x + i] / 256
                     except IndexError:
                         pass
             avg = avg / (maxx * maxy)
             i_closest = getclosest(charlist, avg)
             piclist[y // maxy][x // maxx] = charlist[i_closest][1]
+    end = time.time()
+    print("for1: " + str(end - start))
 
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
+    end = time.time()
+    print("for3: " + str(end - start))
     piclist = cv2.vconcat(piclist)
 
     piclist = cv2.resize(piclist, [1920, 1080])
