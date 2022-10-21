@@ -27,13 +27,13 @@ def setfontcolor():
     font_bgr.append(color[1])
     font_bgr.append(color[0])
 
-
 def setbgcolor():
     color = askcolor(color=None)[0]
     global bg_bgr
     bg_bgr.append(color[2])
     bg_bgr.append(color[1])
     bg_bgr.append(color[0])
+
 
 
 def buildGui():

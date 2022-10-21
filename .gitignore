@@ -1,5 +1,4 @@
 # created by virtualenv automatically
-venv/Lib
 .idea
 temp/frames_out/
 temp/frames_in/

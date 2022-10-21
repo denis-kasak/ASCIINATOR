@@ -2,9 +2,7 @@ import multiprocessing
 import os
 import shutil
 from multiprocessing import Process
-
 import cv2
-
 from fontextractor import sortfonts
 from util import getclosest
 
@@ -16,6 +14,7 @@ def img2ascii(img, indeximg, charlist, color):
 
     charw = charw // 4
     charh = charh // 4
+
 
     h = img.shape[0]
     w = img.shape[1]
@@ -41,6 +40,7 @@ def img2ascii(img, indeximg, charlist, color):
                 for j in range(charh):
                     try:
                         avg += img[y + j][x + i]
+
                     except IndexError:
                         pass
             avg = avg / (charw * charh)
@@ -49,6 +49,8 @@ def img2ascii(img, indeximg, charlist, color):
 
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
+    end = time.time()
+    print("for3: " + str(end - start))
     piclist = cv2.vconcat(piclist)
 
     piclist = cv2.resize(piclist, [1920, 1080])
