@@ -5,11 +5,11 @@ import shutil
 import cv2
 
 
-def main():
+def createchars():
     maxx = 0
     maxy = 0
 
-    img = cv2.imread("./res/fontmap.png", cv2.IMREAD_UNCHANGED)
+    img = cv2.imread("./res/fontmap.jpg")
 
     if os.path.exists("./res/chars/"):
         shutil.rmtree("./res/chars/")
@@ -55,16 +55,18 @@ def main():
 
                 crop_img = img[y1:y2, x1:x2]
 
-                cv2.imwrite("./res/chars/" + str(line_count - 2) + ".png", crop_img)
+                cv2.imwrite(f'./res/chars/{line_count - 2}.jpg', crop_img)
                 line_count += 1
 
 
 def sortfonts():
+    if not os.listdir("./res/chars/"):
+        createchars()
     i = 0
     charlist = []
-    while os.path.isfile("./res/chars/" + str(i) + ".png"):
-        path = "./res/chars/" + str(i) + ".png"
-        img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    while os.path.isfile(f'./res/chars/{i}.jpg'):
+        path = f'./res/chars/{i}.jpg'
+        img = cv2.imread(path)
         h = img.shape[0]
         w = img.shape[1]
 
@@ -73,13 +75,13 @@ def sortfonts():
         for x in range(0, w):
             for y in range(0, h):
                 px = img[y, x]
-                avg += px[3]
+                avg += (sum(px)) / 3
         avg = avg / ((w - 1) * (h - 1))
         charlist.append([avg, os.path.abspath(path)])
         i = i + 1
     charlist = sorted(charlist)
 
-    minv = 1000
+    minv = 100
     maxv = 0
     for i in range(len(charlist)):
         if charlist[i][0] < minv:
@@ -87,7 +89,10 @@ def sortfonts():
         elif charlist[i][0] > maxv:
             maxv = charlist[i][0]
     for i in range(len(charlist)):
-        charlist[i][0] = (charlist[i][0] - minv) / maxv
+        charlist[i][0] = (charlist[i][0] - minv) / (maxv - minv)
+
+    for i in range(len(charlist)):
+        charlist[i][1] = cv2.imread(charlist[i][1])
 
     with open('./res/coords.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=';')
@@ -99,5 +104,5 @@ def sortfonts():
 
 
 if __name__ == '__main__':
-    main()
-    #print(sortfonts())
+    createchars()
+    sortfonts()

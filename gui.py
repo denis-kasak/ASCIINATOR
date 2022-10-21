@@ -1,12 +1,8 @@
-import os.path
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import askopenfilename
-import cv2
-
 import imgprocessor
-import colorvideo
-import splitvideo
+import util
 
 path = ""
 font_bgr = []
@@ -14,11 +10,9 @@ bg_bgr = []
 
 
 def processVideo():
-    splitvideo.splitVideo(path)
-    imgprocessor.frames2ascii(font_bgr)
-    imgprocessor.combinevideo()
-    colorvideo.colorvideo(font_bgr)
-    colorvideo.combinevideo()
+    util.splitVideo(path)
+    imgprocessor.frames2ascii([font_bgr, bg_bgr])
+    util.combinevideo("./temp/frames_out/", "output.mp4", "mp4v", 30)
 
 
 def setpath():
@@ -27,19 +21,19 @@ def setpath():
 
 
 def setfontcolor():
-    input = askcolor(color=None)[0]
+    color = askcolor(color=None)[0]
     global font_bgr
-    font_bgr.append(input[2])
-    font_bgr.append(input[1])
-    font_bgr.append(input[0])
+    font_bgr.append(color[2])
+    font_bgr.append(color[1])
+    font_bgr.append(color[0])
 
 
 def setbgcolor():
-    input = askcolor(color=None)[0]
+    color = askcolor(color=None)[0]
     global bg_bgr
-    bg_bgr.append(input[2])
-    bg_bgr.append(input[1])
-    bg_bgr.append(input[0])
+    bg_bgr.append(color[2])
+    bg_bgr.append(color[1])
+    bg_bgr.append(color[0])
 
 
 def buildGui():
