@@ -7,10 +7,12 @@ import cv2
 def take_closesthelp(lst, k):
     return lst[min(range(len(lst)), key=lambda i: abs(lst[i] - k))]
 
+
 def initdir(dir):
     if os.path.exists(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
+
 
 def getclosest(charlist, target):
     nlist = []
@@ -42,6 +44,7 @@ def combinevideo(srcdir, target, codec, fps):
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
+
 
 def splitVideo(videopath):
     initdir("temp/frames_in/")

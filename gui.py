@@ -15,12 +15,19 @@ scale = ""
 
 
 def processVideo():
-    res = scale.get()/10
+    res = scale.get() / 10
     fontextractor.setskin(items.get())
     util.splitVideo(path)
     imgprocessor.frames2ascii([font_bgr, bg_bgr], res)
     util.combinevideo("./temp/frames_out/", "output.mp4", "mp4v", 30)
     print("Video ist fertig.")
+
+
+def preview():
+    res = scale.get() / 10
+    fontextractor.setskin(items.get())
+    imgprocessor.singleframe([font_bgr, bg_bgr], res, path)
+
 
 
 def setpath():
@@ -81,6 +88,9 @@ def buildGui():
     global scale
     scale = tk.Scale(master, from_=10, to=40, orient=HORIZONTAL)
     scale.pack()
+
+    btnpreview = tk.Button(master, text="Vorschau", command=(lambda: preview()))
+    btnpreview.pack()
 
     btnStart = tk.Button(master, text="start", command=(lambda: processVideo()))
     btnStart.pack()
