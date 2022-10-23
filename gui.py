@@ -7,8 +7,8 @@ import imgprocessor
 import util
 
 path = ""
-font_bgr = []
-bg_bgr = []
+font_bgr = [255, 255, 255]
+bg_bgr = [0, 0, 0]
 items = ""
 
 
@@ -29,26 +29,18 @@ def setfontcolor():
     color = askcolor(color="green")[0]
     global font_bgr
     if color is not None:
-        font_bgr.append(color[2])
-        font_bgr.append(color[1])
-        font_bgr.append(color[0])
-    else:
-        font_bgr.append(255)
-        font_bgr.append(255)
-        font_bgr.append(255)
+        font_bgr[2] = color[2]
+        font_bgr[1] = color[1]
+        font_bgr[0] = color[0]
 
 
 def setbgcolor():
     color = askcolor(color="black")[0]
     global bg_bgr
     if color is not None:
-        bg_bgr.append(color[2])
-        bg_bgr.append(color[1])
-        bg_bgr.append(color[0])
-    else:
-        bg_bgr.append(0)
-        bg_bgr.append(0)
-        bg_bgr.append(0)
+        bg_bgr[2] = color[2]
+        bg_bgr[1] = color[1]
+        bg_bgr[0] = color[0]
 
 
 def buildGui():

@@ -1,7 +1,7 @@
-# created by virtualenv automatically
 .idea
 temp/frames_out/
 temp/frames_in/
+temp/chars/
 res/chars/
 __pycache__
 *.mp4
