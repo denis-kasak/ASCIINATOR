@@ -1,7 +1,5 @@
-import csv
 import math
 import os
-import shutil
 
 import cv2
 
@@ -18,8 +16,6 @@ def setskin(skin):
 def sortfonts(color):
     charlist = createcolor(color[0], color[1])
 
-    charlist = sorted(charlist)
-
     minv = 1000
     maxv = 0
     for i in range(len(charlist)):
@@ -28,7 +24,7 @@ def sortfonts(color):
         elif charlist[i][0] > maxv:
             maxv = charlist[i][0]
     for i in range(len(charlist)):
-        charlist[i][0] = (charlist[i][0] - minv) / (maxv - minv)
+        charlist[i][0] = 256 * ((charlist[i][0] - minv) / (maxv - minv))
         charlist[i][1] = cv2.imread(charlist[i][1])
 
     w = 20
@@ -78,11 +74,11 @@ def createcolor(fontbgr, bgbgr):
         path = f'./temp/chars/{indeximg}.jpg'
         cv2.imwrite(path, img)
 
-        avgimg = avgimg / ((w - 1) * (h - 1))
+        avgimg = (avgimg / ((w - 1) * (h - 1)))
         charlist.append([avgimg, path])
         indeximg = indeximg + 1
 
-    return charlist
+    return sorted(charlist)
 
 
 if __name__ == '__main__':

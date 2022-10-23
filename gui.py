@@ -29,7 +29,6 @@ def preview():
     imgprocessor.singleframe([font_bgr, bg_bgr], res, path)
 
 
-
 def setpath():
     global path
     path = askopenfilename(filetypes=[("Videos", "*")])
