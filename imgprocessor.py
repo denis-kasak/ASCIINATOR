@@ -23,13 +23,8 @@ def img2ascii(img, indeximg, charlist, res):
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    nimg = []
-    for y in range(h):
-        nimg.append([])
-        for x in range(w):
-            nimg[y].append([])
-            nimg[y][x] = int(img[y][x]) / 256
-    img = nimg
+    if h!=1080 or w!= 1920:
+        img = cv2.resize(img, [1920, 1080])
 
     piclist = []
 
@@ -42,9 +37,9 @@ def img2ascii(img, indeximg, charlist, res):
                 for j in range(charh):
                     try:
                         avg += img[y + j][x + i]
-
                     except IndexError:
                         pass
+
             avg = avg / (charw * charh)
             i_closest = getclosest(charlist, avg)
             piclist[y // charh][x // charw] = charlist[i_closest][1]
@@ -60,19 +55,6 @@ def img2ascii(img, indeximg, charlist, res):
 
 def singleframe(color, res, path):
     capture = cv2.VideoCapture(path)
-    # frameNr = 0
-    #
-    #
-    # while True:
-    #     success, frame = capture.read()
-    #     if success:
-    #         cv2.imwrite(f'./temp/frames_in/{frameNr}.jpg', frame)
-    #     else:
-    #         break
-    #     frameNr += 1
-    #
-    # capture.release()
-
     img = capture.read()[1]
     capture.release()
     charlist = sortfonts(color)
