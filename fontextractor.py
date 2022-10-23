@@ -4,13 +4,13 @@ import shutil
 
 import cv2
 
+import util
+
 skindir = "./res/charfilter/all/"
 
 
 def setskin(skin):
     global skindir
-    if skindir == "./res/charfilter/all":
-        skindir = ""
     skindir = "./res/charfilter/" + skin + "/"
 
 
@@ -61,6 +61,13 @@ def getskins():
             skins.append(list[i].replace("./res/charfilter/", ""))
 
     return skins
+
+
+# def createcolor(fontbgr, bgbgr):
+#     util.initdir("./temp/chars/")
+#
+#
+#     return img
 
 
 if __name__ == '__main__':

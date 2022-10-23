@@ -4,6 +4,8 @@ import os
 import shutil
 from multiprocessing import Process
 import cv2
+
+import util
 from fontextractor import sortfonts
 from util import getclosest
 
@@ -57,9 +59,7 @@ def img2ascii(img, indeximg, charlist, color):
 
 
 def frames2ascii(color):
-    if os.path.exists("temp/frames_out/"):
-        shutil.rmtree("temp/frames_out/")
-    os.mkdir("temp/frames_out/")
+    util.initdir("temp/frames_out/")
     filenum = 0
     pid = []
     numfiles = len(

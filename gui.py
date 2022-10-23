@@ -9,9 +9,11 @@ import util
 path = ""
 font_bgr = []
 bg_bgr = []
+items = ""
 
 
 def processVideo():
+    fontextractor.setskin(items.get())
     util.splitVideo(path)
     imgprocessor.frames2ascii([font_bgr, bg_bgr])
     util.combinevideo("./temp/frames_out/", "output.mp4", "mp4v", 30)
@@ -72,9 +74,10 @@ def buildGui():
     labelskin.pack()
 
     skinlist = fontextractor.getskins()
+    global items
     items = tk.StringVar(frame_a)
     items.set(skinlist[0])
-    dropdown = tk.OptionMenu(frame_a, items, *skinlist, command=fontextractor.setskin)
+    dropdown = tk.OptionMenu(frame_a, items, *skinlist)
     dropdown.pack()
 
     btnStart = tk.Button(frame_a, text="start", command=(lambda: processVideo()))
@@ -82,7 +85,23 @@ def buildGui():
 
     frame_a.pack()
 
+    centerwin(window)
+
     window.mainloop()
+
+
+def centerwin(win):
+    win.update_idletasks()
+    width = win.winfo_width()
+    frm_width = win.winfo_rootx() - win.winfo_x()
+    win_width = width + 2 * frm_width
+    height = win.winfo_height()
+    titlebar_height = win.winfo_rooty() - win.winfo_y()
+    win_height = height + titlebar_height + frm_width
+    x = win.winfo_screenwidth() // 2 - win_width // 2
+    y = win.winfo_screenheight() // 2 - win_height // 2
+    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    win.deiconify()
 
 
 if __name__ == '__main__':
