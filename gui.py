@@ -7,11 +7,13 @@ import imgprocessor
 import util
 
 path = ""
-font_bgr = []
-bg_bgr = []
+font_bgr = [255, 255, 255]
+bg_bgr = [0, 0, 0]
+items = ""
 
 
 def processVideo():
+    fontextractor.setskin(items.get())
     util.splitVideo(path)
     imgprocessor.frames2ascii([font_bgr, bg_bgr])
     util.combinevideo("./temp/frames_out/", "output.mp4", "mp4v", 30)
@@ -27,26 +29,18 @@ def setfontcolor():
     color = askcolor(color="green")[0]
     global font_bgr
     if color is not None:
-        font_bgr.append(color[2])
-        font_bgr.append(color[1])
-        font_bgr.append(color[0])
-    else:
-        font_bgr.append(255)
-        font_bgr.append(255)
-        font_bgr.append(255)
+        font_bgr[2] = color[2]
+        font_bgr[1] = color[1]
+        font_bgr[0] = color[0]
 
 
 def setbgcolor():
     color = askcolor(color="black")[0]
     global bg_bgr
     if color is not None:
-        bg_bgr.append(color[2])
-        bg_bgr.append(color[1])
-        bg_bgr.append(color[0])
-    else:
-        bg_bgr.append(0)
-        bg_bgr.append(0)
-        bg_bgr.append(0)
+        bg_bgr[2] = color[2]
+        bg_bgr[1] = color[1]
+        bg_bgr[0] = color[0]
 
 
 def buildGui():
@@ -72,9 +66,10 @@ def buildGui():
     labelskin.pack()
 
     skinlist = fontextractor.getskins()
+    global items
     items = tk.StringVar(frame_a)
     items.set(skinlist[0])
-    dropdown = tk.OptionMenu(frame_a, items, *skinlist, command=fontextractor.setskin)
+    dropdown = tk.OptionMenu(frame_a, items, *skinlist)
     dropdown.pack()
 
     btnStart = tk.Button(frame_a, text="start", command=(lambda: processVideo()))
@@ -82,7 +77,23 @@ def buildGui():
 
     frame_a.pack()
 
+    centerwin(window)
+
     window.mainloop()
+
+
+def centerwin(win):
+    win.update_idletasks()
+    width = win.winfo_width()
+    frm_width = win.winfo_rootx() - win.winfo_x()
+    win_width = width + 2 * frm_width
+    height = win.winfo_height()
+    titlebar_height = win.winfo_rooty() - win.winfo_y()
+    win_height = height + titlebar_height + frm_width
+    x = win.winfo_screenwidth() // 2 - win_width // 2
+    y = win.winfo_screenheight() // 2 - win_height // 2
+    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+    win.deiconify()
 
 
 if __name__ == '__main__':

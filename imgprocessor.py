@@ -4,17 +4,19 @@ import os
 import shutil
 from multiprocessing import Process
 import cv2
+
+import util
 from fontextractor import sortfonts
 from util import getclosest
 
 
-def img2ascii(img, indeximg, charlist, color):
+def img2ascii(img, indeximg, charlist):
     charw = charlist[0]
     charh = charlist[1]
     charlist = charlist[2]
 
-    charw = math.floor(charw // 0.5)
-    charh = math.floor(charh // 0.5)
+    charw = math.floor(charw // 2.5)
+    charh = math.floor(charh // 2.5)
 
     h = img.shape[0]
     w = img.shape[1]
@@ -57,23 +59,21 @@ def img2ascii(img, indeximg, charlist, color):
 
 
 def frames2ascii(color):
-    if os.path.exists("temp/frames_out/"):
-        shutil.rmtree("temp/frames_out/")
-    os.mkdir("temp/frames_out/")
+    util.initdir("temp/frames_out/")
     filenum = 0
     pid = []
     numfiles = len(
         [name for name in os.listdir("temp/frames_in/") if os.path.isfile(os.path.join("temp/frames_in/", name))])
     finishedfiles = 0
     workingfiles = 0
-    charlist = sortfonts()
+    charlist = sortfonts(color)
     cpucount = multiprocessing.cpu_count()
 
     while workingfiles != numfiles and finishedfiles < numfiles:
 
         while len(pid) < cpucount:
             path = f'./temp/frames_in/{filenum}.jpg'
-            p = Process(target=procstart, args=(path, filenum, charlist, color))
+            p = Process(target=procstart, args=(path, filenum, charlist))
             pid.append(p)
             workingfiles += 1
             p.start()
@@ -94,7 +94,7 @@ def frames2ascii(color):
     print("Frames in Ascii umgewandelt.")
 
 
-def procstart(path, framenum, charlist, bgr):
+def procstart(path, framenum, charlist):
     img = cv2.imread(path)
     img = cv2.resize(img, [1920, 1080])
-    img2ascii(img, framenum, charlist, bgr)
+    img2ascii(img, framenum, charlist)
