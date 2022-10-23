@@ -4,68 +4,21 @@ import shutil
 
 import cv2
 
+skindir = "./res/charfilter/all/"
 
-def createchars():
-    maxx = 0
-    maxy = 0
 
-    img = cv2.imread("./res/fontmap.jpg")
-
-    if os.path.exists("./res/chars/"):
-        shutil.rmtree("./res/chars/")
-    os.mkdir("./res/chars/")
-
-    with open('./res/coords.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=';')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                maxx = int(row[5])
-                maxy = int(row[6])
-                line_count += 1
-            elif line_count == 1:
-                line_count += 1
-                pass
-            else:
-                x1 = int(row[1])
-                y1 = int(row[2])
-                x2 = int(row[3]) + 1
-                y2 = int(row[4]) + 1
-                w = x2 - x1
-                h = y2 - y1
-
-                if w < maxx:
-                    diff = maxx - w
-                    abstand = diff // 2
-                    if diff % 2 == 0:
-                        x1 = x1 - abstand
-                        x2 = x2 + abstand
-                    else:
-                        x1 = x1 - abstand
-                        x2 = x2 + abstand + 1
-                if h < maxy:
-                    diff = maxy - h
-                    abstand = diff // 2
-                    if diff % 2 == 0:
-                        y1 = y1 - abstand
-                        y2 = y2 + abstand
-                    else:
-                        y1 = y1 - abstand
-                        y2 = y2 + abstand + 1
-
-                crop_img = img[y1:y2, x1:x2]
-
-                cv2.imwrite(f'./res/chars/{line_count - 2}.jpg', crop_img)
-                line_count += 1
+def setskin(skin):
+    global skindir
+    if skindir == "./res/charfilter/all":
+        skindir = ""
+    skindir = "./res/charfilter/" + skin + "/"
 
 
 def sortfonts():
-    if not os.listdir("./res/chars/"):
-        createchars()
     i = 0
     charlist = []
-    while os.path.isfile(f'./res/chars/{i}.jpg'):
-        path = f'./res/chars/{i}.jpg'
+    while os.path.isfile(skindir + f'{i}.jpg'):
+        path = skindir + f'{i}.jpg'
         img = cv2.imread(path)
         h = img.shape[0]
         w = img.shape[1]
@@ -77,11 +30,12 @@ def sortfonts():
                 px = img[y, x]
                 avg += (sum(px)) / 3
         avg = avg / ((w - 1) * (h - 1))
-        charlist.append([avg, os.path.abspath(path)])
+        charlist.append([avg, path])
         i = i + 1
+
     charlist = sorted(charlist)
 
-    minv = 100
+    minv = 1000
     maxv = 0
     for i in range(len(charlist)):
         if charlist[i][0] < minv:
@@ -90,19 +44,26 @@ def sortfonts():
             maxv = charlist[i][0]
     for i in range(len(charlist)):
         charlist[i][0] = (charlist[i][0] - minv) / (maxv - minv)
-
-    for i in range(len(charlist)):
         charlist[i][1] = cv2.imread(charlist[i][1])
 
-    with open('./res/coords.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=';')
-        for row in csv_reader:
-            maxx = int(row[5])
-            maxy = int(row[6])
-            break;
-        return [maxx, maxy, charlist]
+    w = 20
+    h = 32
+    return [w, h, charlist]
+
+
+def getskins():
+    list = [x[0] for x in os.walk("./res/charfilter/")]
+    skins = []
+    for i in range(len(list)):
+        if i == 0:
+            continue
+        else:
+            skins.append(list[i].replace("./res/charfilter/", ""))
+
+    return skins
 
 
 if __name__ == '__main__':
-    createchars()
-    sortfonts()
+    # createchars()
+    # sortfonts()
+    print(getskins())

@@ -1,3 +1,4 @@
+import math
 import multiprocessing
 import os
 import shutil
@@ -12,9 +13,8 @@ def img2ascii(img, indeximg, charlist, color):
     charh = charlist[1]
     charlist = charlist[2]
 
-    charw = charw // 4
-    charh = charh // 4
-
+    charw = math.floor(charw // 0.5)
+    charh = math.floor(charh // 0.5)
 
     h = img.shape[0]
     w = img.shape[1]
