@@ -1,8 +1,8 @@
 import math
 import multiprocessing
 import os
-import shutil
 from multiprocessing import Process
+
 import cv2
 
 import util
@@ -56,6 +56,33 @@ def img2ascii(img, indeximg, charlist, res):
     piclist = cv2.resize(piclist, [1920, 1080])
 
     cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', piclist)
+
+
+def singleframe(color, res, path):
+    capture = cv2.VideoCapture(path)
+    # frameNr = 0
+    #
+    #
+    # while True:
+    #     success, frame = capture.read()
+    #     if success:
+    #         cv2.imwrite(f'./temp/frames_in/{frameNr}.jpg', frame)
+    #     else:
+    #         break
+    #     frameNr += 1
+    #
+    # capture.release()
+
+    img = capture.read()[1]
+    capture.release()
+    charlist = sortfonts(color)
+    img2ascii(img, 0, charlist, res)
+
+    img = cv2.imread("./temp/frames_out/0.jpg")
+
+    cv2.imshow("Preview", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def frames2ascii(color, res):
