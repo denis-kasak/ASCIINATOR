@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import HORIZONTAL
 from tkinter.colorchooser import askcolor
 from tkinter.filedialog import askopenfilename
 
@@ -10,12 +11,14 @@ path = ""
 font_bgr = [255, 255, 255]
 bg_bgr = [0, 0, 0]
 items = ""
+scale = ""
 
 
 def processVideo():
+    res = scale.get()/10
     fontextractor.setskin(items.get())
     util.splitVideo(path)
-    imgprocessor.frames2ascii([font_bgr, bg_bgr])
+    imgprocessor.frames2ascii([font_bgr, bg_bgr], res)
     util.combinevideo("./temp/frames_out/", "output.mp4", "mp4v", 30)
     print("Video ist fertig.")
 
@@ -48,34 +51,41 @@ def buildGui():
 
     window.geometry("300x300")
 
-    frame_a = tk.Frame()
+    master = tk.Frame()
 
-    label_a = tk.Label(master=frame_a, text="Video in Charakter umwandeln:")
+    label_a = tk.Label(master=master, text="Video in Charakter umwandeln:")
     label_a.pack()
 
-    btnVideo = tk.Button(frame_a, text="Video auswählen", command=(lambda: setpath()))
+    btnVideo = tk.Button(master, text="Video auswählen", command=(lambda: setpath()))
     btnVideo.pack()
 
-    btnFontColor = tk.Button(frame_a, text="Schriftfarbe auswählen", command=(lambda: setfontcolor()))
+    btnFontColor = tk.Button(master, text="Schriftfarbe auswählen", command=(lambda: setfontcolor()))
     btnFontColor.pack()
 
-    btnBgColor = tk.Button(frame_a, text="Hintergrundfarbe auswählen", command=(lambda: setbgcolor()))
+    btnBgColor = tk.Button(master, text="Hintergrundfarbe auswählen", command=(lambda: setbgcolor()))
     btnBgColor.pack()
 
-    labelskin = tk.Label(frame_a, text="Characterset wählen:")
+    labelskin = tk.Label(master, text="Characterset wählen:")
     labelskin.pack()
 
     skinlist = fontextractor.getskins()
     global items
-    items = tk.StringVar(frame_a)
+    items = tk.StringVar(master)
     items.set(skinlist[0])
-    dropdown = tk.OptionMenu(frame_a, items, *skinlist)
+    dropdown = tk.OptionMenu(master, items, *skinlist)
     dropdown.pack()
 
-    btnStart = tk.Button(frame_a, text="start", command=(lambda: processVideo()))
+    labelres = tk.Label(master, text="Auflösung wählen:")
+    labelres.pack()
+
+    global scale
+    scale = tk.Scale(master, from_=10, to=40, orient=HORIZONTAL)
+    scale.pack()
+
+    btnStart = tk.Button(master, text="start", command=(lambda: processVideo()))
     btnStart.pack()
 
-    frame_a.pack()
+    master.pack()
 
     centerwin(window)
 
