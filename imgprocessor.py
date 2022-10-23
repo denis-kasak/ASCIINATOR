@@ -23,6 +23,9 @@ def img2ascii(img, indeximg, charlist, res):
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    if h!=1080 or w!= 1920:
+        img = cv2.resize(img, [1920, 1080])
+
     piclist = []
 
     for y in range(0, h, charh):
