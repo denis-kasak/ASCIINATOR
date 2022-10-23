@@ -10,13 +10,13 @@ from fontextractor import sortfonts
 from util import getclosest
 
 
-def img2ascii(img, indeximg, charlist):
+def img2ascii(img, indeximg, charlist, res):
     charw = charlist[0]
     charh = charlist[1]
     charlist = charlist[2]
 
-    charw = math.floor(charw // 2.5)
-    charh = math.floor(charh // 2.5)
+    charw = math.floor(charw // res)
+    charh = math.floor(charh // res)
 
     h = img.shape[0]
     w = img.shape[1]
@@ -58,7 +58,7 @@ def img2ascii(img, indeximg, charlist):
     cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', piclist)
 
 
-def frames2ascii(color):
+def frames2ascii(color, res):
     util.initdir("temp/frames_out/")
     filenum = 0
     pid = []
@@ -73,7 +73,7 @@ def frames2ascii(color):
 
         while len(pid) < cpucount:
             path = f'./temp/frames_in/{filenum}.jpg'
-            p = Process(target=procstart, args=(path, filenum, charlist))
+            p = Process(target=procstart, args=(path, filenum, charlist, res))
             pid.append(p)
             workingfiles += 1
             p.start()
@@ -94,7 +94,7 @@ def frames2ascii(color):
     print("Frames in Ascii umgewandelt.")
 
 
-def procstart(path, framenum, charlist):
+def procstart(path, framenum, charlist, res):
     img = cv2.imread(path)
     img = cv2.resize(img, [1920, 1080])
-    img2ascii(img, framenum, charlist)
+    img2ascii(img, framenum, charlist, res)
