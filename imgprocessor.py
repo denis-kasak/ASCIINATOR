@@ -4,6 +4,7 @@ import os
 from multiprocessing import Process
 
 import cv2
+import time
 
 import util
 from fontextractor import sortfonts
@@ -11,19 +12,17 @@ from util import getclosest
 
 
 def img2ascii(img, indeximg, charlist, res):
-    charw = charlist[0]
-    charh = charlist[1]
-    charlist = charlist[2]
+    charw = math.floor(charlist[0] // res)
+    charh = math.floor(charlist[1] // res)
 
-    charw = math.floor(charw // res)
-    charh = math.floor(charh // res)
+    charlist = charlist[2]
 
     h = img.shape[0]
     w = img.shape[1]
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    if h!=1080 or w!= 1920:
+    if h != 1080 or w != 1920:
         img = cv2.resize(img, [1920, 1080])
 
     piclist = []
