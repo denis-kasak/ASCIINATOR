@@ -45,7 +45,7 @@ def getskins():
 
 
 def createcolor(fontbgr, bgbgr):
-    util.initdir("./temp/chars/")
+
 
     charlist = []
     indeximg = 0

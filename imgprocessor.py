@@ -67,7 +67,7 @@ def singleframe(color, res, path):
 
 
 def frames2ascii(color, res):
-    util.initdir("temp/frames_out/")
+
     filenum = 0
     pid = []
     numfiles = len(

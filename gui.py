@@ -15,6 +15,7 @@ scale = ""
 
 
 def processVideo():
+    util.inittemp()
     res = scale.get() / 10
     fontextractor.setskin(items.get())
     util.splitVideo(path)
@@ -24,6 +25,7 @@ def processVideo():
 
 
 def preview():
+    util.inittemp()
     res = scale.get() / 10
     fontextractor.setskin(items.get())
     imgprocessor.singleframe([font_bgr, bg_bgr], res, path)

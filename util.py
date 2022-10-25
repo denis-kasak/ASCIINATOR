@@ -66,7 +66,7 @@ def combinevideo(srcdir, target, codec, fps):
 
 
 def splitVideo(videopath):
-    initdir("temp/frames_in/")
+
     capture = cv2.VideoCapture(videopath)
     frameNr = 0
 
@@ -81,3 +81,9 @@ def splitVideo(videopath):
 
     capture.release()
     print("Video in Frames einteilen beendet.")
+
+def inittemp():
+    initdir("./temp/")
+    initdir("./temp/frames_in/")
+    initdir("./temp/frames_out/")
+    initdir("./temp/chars/")
