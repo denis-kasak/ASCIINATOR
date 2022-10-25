@@ -3,8 +3,6 @@ import os
 
 import cv2
 
-import util
-
 skindir = "./res/charfilter/all/"
 
 
@@ -18,36 +16,45 @@ def sortfonts(color):
 
     minv = 1000
     maxv = 0
-    for i in range(len(charlist)):
-        if charlist[i][0] < minv:
-            minv = charlist[i][0]
-        elif charlist[i][0] > maxv:
-            maxv = charlist[i][0]
-    for i in range(len(charlist)):
-        charlist[i][0] = 256 * ((charlist[i][0] - minv) / (maxv - minv))
-        charlist[i][1] = cv2.imread(charlist[i][1])
+
+    # find the most/the least bright character
+    for i in range(len(charlist[0])):
+        if charlist[0][i] < minv:
+            minv = charlist[0][i]
+        elif charlist[0][i] > maxv:
+            maxv = charlist[0][i]
+
+    # load images in list
+    for i in range(len(charlist[1])):
+        charlist[1][i][0] = 256 * ((charlist[1][i][0] - minv) / (maxv - minv))
+        charlist[0][i] = charlist[1][i][0]
+
+    charlist[0] = sorted(charlist[0])
+    charlist[1] = sorted(charlist[1])
+
+    for i in range(len(charlist[1])):
+        charlist[1][i][1] = cv2.imread(charlist[1][i][1])
 
     w = 20
     h = 32
+
     return [w, h, charlist]
 
 
 def getskins():
-    list = [x[0] for x in os.walk("./res/charfilter/")]
+    liste = [x[0] for x in os.walk("./res/charfilter/")]
     skins = []
-    for i in range(len(list)):
+    for i in range(len(liste)):
         if i == 0:
             continue
         else:
-            skins.append(list[i].replace("./res/charfilter/", ""))
+            skins.append(liste[i].replace("./res/charfilter/", ""))
 
     return skins
 
 
 def createcolor(fontbgr, bgbgr):
-    util.initdir("./temp/chars/")
-
-    charlist = []
+    charlist = [[], []]
     indeximg = 0
     while os.path.isfile(skindir + f'{indeximg}.jpg'):
         path = skindir + f'{indeximg}.jpg'
@@ -75,10 +82,11 @@ def createcolor(fontbgr, bgbgr):
         cv2.imwrite(path, img)
 
         avgimg = (avgimg / ((w - 1) * (h - 1)))
-        charlist.append([avgimg, path])
+        charlist[0].append(avgimg)
+        charlist[1].append([avgimg, path])
         indeximg = indeximg + 1
 
-    return sorted(charlist)
+    return charlist
 
 
 if __name__ == '__main__':
