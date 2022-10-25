@@ -22,29 +22,23 @@ def img2ascii(img, indeximg, charlist, res):
     ###########
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     if h != 1080 or w != 1920:
         img = cv2.resize(img, [1920, 1080])
 
-    piclist = []
     for y in range(0, h, charh):
-        piclist.append([])
         for x in range(0, w, charw):
-            piclist[y // charh].append([])
 
             avg = numpy.sum(img[y:y+charh, x:x+charw])
 
-            avg = avg / (charw * charh)
+            avg = avg / (charw * charh * 3)
             i_closest = bisect_left(charlist[0], avg)
-            piclist[y // charh][x // charw] = charlist[1][i_closest][1]
+            char = charlist[1][i_closest][1]
+            img[y:y + charh, x:x + charw] = cv2.resize(char, [charw, charh])
 
-    for y in range(len(piclist)):
-        piclist[y] = cv2.hconcat(piclist[y])
-    piclist = cv2.vconcat(piclist)
+    img = cv2.resize(img, [1920, 1080])
 
-
-    piclist = cv2.resize(piclist, [1920, 1080])
-
-    cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', piclist)
+    cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', img)
 
 
 def singleframe(color, res, img):
