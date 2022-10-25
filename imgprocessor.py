@@ -2,16 +2,16 @@ import math
 import multiprocessing
 import os
 from multiprocessing import Process
-
 import cv2
 import time
-
 import util
 from fontextractor import sortfonts
-from util import getclosest
+from bisect import bisect_left
+import numpy
 
 
 def img2ascii(img, indeximg, charlist, res):
+    ###########
     charw = math.floor(charlist[0] // res)
     charh = math.floor(charlist[1] // res)
 
@@ -19,43 +19,35 @@ def img2ascii(img, indeximg, charlist, res):
 
     h = img.shape[0]
     w = img.shape[1]
+    ###########
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
     if h != 1080 or w != 1920:
         img = cv2.resize(img, [1920, 1080])
 
     piclist = []
-
     for y in range(0, h, charh):
         piclist.append([])
         for x in range(0, w, charw):
             piclist[y // charh].append([])
-            avg = 0
-            for i in range(charw):
-                for j in range(charh):
-                    try:
-                        avg += img[y + j][x + i]
-                    except IndexError:
-                        pass
+
+            avg = numpy.sum(img[y:y+charh, x:x+charw])
 
             avg = avg / (charw * charh)
-            i_closest = getclosest(charlist, avg)
-            piclist[y // charh][x // charw] = charlist[i_closest][1]
+            i_closest = bisect_left(charlist[0], avg)
+            piclist[y // charh][x // charw] = charlist[1][i_closest][1]
 
     for y in range(len(piclist)):
         piclist[y] = cv2.hconcat(piclist[y])
     piclist = cv2.vconcat(piclist)
+
 
     piclist = cv2.resize(piclist, [1920, 1080])
 
     cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', piclist)
 
 
-def singleframe(color, res, path):
-    capture = cv2.VideoCapture(path)
-    img = capture.read()[1]
-    capture.release()
+def singleframe(color, res, img):
     charlist = sortfonts(color)
     img2ascii(img, 0, charlist, res)
 
@@ -67,7 +59,6 @@ def singleframe(color, res, path):
 
 
 def frames2ascii(color, res):
-
     filenum = 0
     pid = []
     numfiles = len(
