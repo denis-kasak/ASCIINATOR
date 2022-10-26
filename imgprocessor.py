@@ -10,40 +10,37 @@ from bisect import bisect_left
 import numpy
 
 
-def img2ascii(img, indeximg, charlist, res):
-    ###########
-    charw = math.floor(charlist[0] // res)
-    charh = math.floor(charlist[1] // res)
+def img2ascii(img, indeximg, charlist, charsize):
+    charw = charsize[0]
+    charh = charsize[1]
 
     charlist = charlist[2]
 
     h = img.shape[0]
     w = img.shape[1]
-    ###########
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    if h != 1080 or w != 1920:
-        img = cv2.resize(img, [1920, 1080])
 
     for y in range(0, h, charh):
         for x in range(0, w, charw):
-
-            avg = numpy.sum(img[y:y+charh, x:x+charw])
+            avg = numpy.sum(img[y:y + charh, x:x + charw])
 
             avg = avg / (charw * charh * 3)
             i_closest = bisect_left(charlist[0], avg)
             char = charlist[1][i_closest][1]
             img[y:y + charh, x:x + charw] = cv2.resize(char, [charw, charh])
 
-    img = cv2.resize(img, [1920, 1080])
-
     cv2.imwrite(f'./temp/frames_out/{indeximg}.jpg', img)
 
 
 def singleframe(color, res, img):
     charlist = sortfonts(color)
-    img2ascii(img, 0, charlist, res)
+
+    charw = math.floor(charlist[0] // res)
+    charh = math.floor(charlist[1] // res)
+
+    img2ascii(img, 0, charlist, [charw, charh])
 
     img = cv2.imread("./temp/frames_out/0.jpg")
 
@@ -62,11 +59,14 @@ def frames2ascii(color, res):
     charlist = sortfonts(color)
     cpucount = multiprocessing.cpu_count()
 
+    charw = math.floor(charlist[0] // res)
+    charh = math.floor(charlist[1] // res)
+
     while workingfiles != numfiles and finishedfiles < numfiles:
 
         while len(pid) < cpucount:
             path = f'./temp/frames_in/{filenum}.jpg'
-            p = Process(target=procstart, args=(path, filenum, charlist, res))
+            p = Process(target=procstart, args=(path, filenum, charlist, [charw, charh]))
             pid.append(p)
             workingfiles += 1
             p.start()
@@ -87,7 +87,10 @@ def frames2ascii(color, res):
     print("Frames in Ascii umgewandelt.")
 
 
-def procstart(path, framenum, charlist, res):
+def procstart(path, framenum, charlist, charsize):
     img = cv2.imread(path)
-    img = cv2.resize(img, [1920, 1080])
-    img2ascii(img, framenum, charlist, res)
+    try:
+        img = cv2.resize(img, [1920, 1080])
+    except:
+        print(framenum)
+    img2ascii(img, framenum, charlist, charsize)
