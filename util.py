@@ -1,12 +1,7 @@
 import os
 import shutil
+
 import cv2
-
-
-def initdir(directory):
-    if os.path.exists(directory):
-        shutil.rmtree(directory)
-    os.mkdir(directory)
 
 
 def combinevideo(srcdir, target, codec, fps):
@@ -23,19 +18,12 @@ def combinevideo(srcdir, target, codec, fps):
 
     if os.path.isfile(target):
         os.remove(target)
-
+    
     out = cv2.VideoWriter(target, cv2.VideoWriter_fourcc(*codec), fps, size)
 
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
-
-
-def inittemp():
-    initdir("./temp/")
-    initdir("./temp/frames_in/")
-    initdir("./temp/frames_out/")
-    initdir("./temp/chars/")
 
 
 def firstframe(videopath):
@@ -45,3 +33,15 @@ def firstframe(videopath):
     capture.release()
 
     return frame
+
+
+def initdir(directory):
+    if os.path.exists(directory):
+        shutil.rmtree(directory)
+    os.mkdir(directory)
+
+
+def inittemp():
+    initdir("./temp/")
+    initdir("./temp/frames_out/")
+    initdir("./temp/chars/")
