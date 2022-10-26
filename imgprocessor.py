@@ -1,13 +1,12 @@
 import math
 import multiprocessing
-import os
-from multiprocessing import Process
-import cv2
-import time
-import util
-from fontextractor import sortfonts
 from bisect import bisect_left
+from multiprocessing import Process
+
+import cv2
 import numpy
+
+from fontextractor import sortfonts
 
 
 def img2ascii(img, indeximg, charlist, charsize):
@@ -49,11 +48,8 @@ def singleframe(color, res, img):
     cv2.destroyAllWindows()
 
 
-def frames2ascii(color, res):
-    filenum = 0
+def frames2ascii(color, res, videopath):
     pid = []
-    numfiles = len(
-        [name for name in os.listdir("temp/frames_in/") if os.path.isfile(os.path.join("temp/frames_in/", name))])
     finishedfiles = 0
     workingfiles = 0
     charlist = sortfonts(color)
@@ -62,35 +58,38 @@ def frames2ascii(color, res):
     charw = math.floor(charlist[0] // res)
     charh = math.floor(charlist[1] // res)
 
-    while workingfiles != numfiles and finishedfiles < numfiles:
+    capture = cv2.VideoCapture(videopath)
+    framecount = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    while workingfiles != framecount and finishedfiles != framecount:
 
         while len(pid) < cpucount:
-            path = f'./temp/frames_in/{filenum}.jpg'
-            p = Process(target=procstart, args=(path, filenum, charlist, [charw, charh]))
-            pid.append(p)
+            success, frame = capture.read()
             workingfiles += 1
+            p = Process(target=procstart, args=(frame, workingfiles, charlist, [charw, charh]))
+            pid.append(p)
             p.start()
-            filenum += 1
 
         deadprocess = []
         for i in range(len(pid)):
             if not pid[i].is_alive():
                 finishedfiles += 1
-                print(f'{100 * finishedfiles / numfiles:5.2f}' + "% fertig")
+                print(f'{100 * finishedfiles / framecount:5.2f}' + "% fertig")
                 pid[i].join()
                 deadprocess.append(i)
         deadprocess.reverse()
         for i in deadprocess:
             pid.pop(i)
 
+    capture.release()
+
     print("100%")
     print("Frames in Ascii umgewandelt.")
 
 
-def procstart(path, framenum, charlist, charsize):
-    img = cv2.imread(path)
+def procstart(img, framenum, charlist, charsize):
     try:
         img = cv2.resize(img, [1920, 1080])
     except:
-        print(framenum)
+        print("Couldnt resize frame no. ", str(framenum))
     img2ascii(img, framenum, charlist, charsize)

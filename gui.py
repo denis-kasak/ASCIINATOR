@@ -18,8 +18,7 @@ def processVideo():
     util.inittemp()
     res = scale.get() / 10
     fontextractor.setskin(items.get())
-    util.splitVideo(path)
-    imgprocessor.frames2ascii([font_bgr, bg_bgr], res)
+    imgprocessor.frames2ascii([font_bgr, bg_bgr], res, path)
     util.combinevideo("./temp/frames_out/", "output.mp4", "h264", 30)
     print("Video ist fertig.")
 
