@@ -7,6 +7,48 @@
 
 using namespace std;
 
+void FramesToAscii(string videopath, string skinname, int fontbgr[], int bgbgr[]) {
+	InitTemp();
+
+	vector<CHARLIST> charlist = CreateColor(fontbgr, bgbgr, skinname, charlist);
+	int charsize[2] = { charlist.at(0).charimg.rows, charlist.at(0).charimg.cols }; // charsize = {height,width}
+
+	cv::VideoCapture cap(videopath);
+
+	ThreadPool* tp = new ThreadPool();
+	tp->Start();
+
+	int indeximg = 0;
+
+	while (true) {
+		cv::Mat frame;
+		// Capture frame-by-frame
+		cap >> frame;
+
+
+
+		// If the frame is empty, break immediately
+		if (frame.empty()) {
+			break;
+		}
+		else {
+			IMG2ASCIIJOB job;
+			job.img = frame;
+			job.indeximg = indeximg;
+			job.charsize[0] = charsize[0];
+			job.charsize[1] = charsize[1];
+			job.charlist = charlist;
+			tp->QueueJob(job);
+			indeximg++;
+		}
+	}
+	while (!tp->busy()) {
+
+	}
+	tp->Stop();
+	delete tp;
+}
+
 void ImageToAscii(cv::Mat img, int imgindex, int charsize[2], vector<CHARLIST> charlist) {
 
 
@@ -54,5 +96,5 @@ void ImageToAscii(cv::Mat img, int imgindex, int charsize[2], vector<CHARLIST> c
 
 		}
 	}
-	cv::imwrite(".\\temp\\frames_out\\1.jpg", img);
+	cv::imwrite(TempFramesOutDir+to_string(imgindex) + ".jpg", img);
 }

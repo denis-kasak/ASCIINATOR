@@ -144,6 +144,7 @@
     <ClCompile Include="fontextractor.cpp" />
     <ClCompile Include="imgprocessor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>

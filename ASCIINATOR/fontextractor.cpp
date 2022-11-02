@@ -11,13 +11,13 @@ bool compareAvg(const CHARLIST& a, const CHARLIST& b) {
 	return a.avgimg < b.avgimg;
 }
 
-vector<CHARLIST> CreateColor(int fontbgr[], int bgbgr[], string str_charpath, vector<CHARLIST> charlist) {
+vector<CHARLIST> CreateColor(int fontbgr[], int bgbgr[], string skinname, vector<CHARLIST> charlist) {
 
-
+	string skindir = SkinDir + skinname + "\\";
 
 	int count = 0;
 
-	filesystem::path charpath{ str_charpath };
+	filesystem::path charpath{ skindir };
 
 	for (auto& p : filesystem::directory_iterator(charpath)) {
 		count++;
@@ -27,11 +27,11 @@ vector<CHARLIST> CreateColor(int fontbgr[], int bgbgr[], string str_charpath, ve
 
 	int index = 0;
 
-	for (const auto& entry : filesystem::directory_iterator(str_charpath)) {
+	for (const auto& entry : filesystem::directory_iterator(charpath)) {
 		const auto filenameStr = entry.path().filename().string();
 		if (entry.is_regular_file()) {
 
-			string path = str_charpath + filenameStr;
+			string path = skindir + filenameStr;
 
 			cv::Mat charimg = cv::imread(path);
 			int h = charimg.rows;
@@ -64,7 +64,7 @@ vector<CHARLIST> CreateColor(int fontbgr[], int bgbgr[], string str_charpath, ve
 
 
 
-			path = ".\\temp\\chars\\" + to_string(index) + ".jpg";
+			path = TempCharDir + to_string(index) + ".jpg";
 			cv::imwrite(path, charimg);
 			index++;
 		}
