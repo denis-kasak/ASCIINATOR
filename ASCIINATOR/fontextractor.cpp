@@ -11,17 +11,15 @@ bool compareAvg(const CHARLIST& a, const CHARLIST& b) {
 	return a.avgimg < b.avgimg;
 }
 
-vector<CHARLIST> CreateColor(int fontbgr[], int bgbgr[], string skinname, vector<CHARLIST> charlist) {
+vector<CHARLIST> CreateColor(const int fontbgr[], const int bgbgr[], const string skinname, vector<CHARLIST> charlist) {
 
 	string skindir = SkinDir + skinname + "\\";
 
-	int count = 0;
-
 	filesystem::path charpath{ skindir };
 
-	for (auto& p : filesystem::directory_iterator(charpath)) {
-		count++;
-	}
+	auto d = filesystem::directory_iterator(charpath);
+
+	int count = distance(filesystem::begin(d),filesystem::end(d));
 
 	charlist.resize(count);
 

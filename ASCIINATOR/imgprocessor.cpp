@@ -4,21 +4,23 @@
 #include <algorithm>
 #include <chrono>
 #include "asciinator.h"
+#include "ThreadPool.h"
 
 using namespace std;
 
-void FramesToAscii(string videopath, string skinname, int fontbgr[], int bgbgr[]) {
+void FramesToAscii(const string videopath, const string skinname, int fontbgr[], int bgbgr[]) {
 	InitTemp();
 
 	vector<CHARLIST> charlist = CreateColor(fontbgr, bgbgr, skinname, charlist);
-	int charsize[2] = { charlist.at(0).charimg.rows, charlist.at(0).charimg.cols }; // charsize = {height,width}
+	const int charsize[2] = { charlist.at(0).charimg.rows, charlist.at(0).charimg.cols }; // charsize = {height,width}
 
 	cv::VideoCapture cap(videopath);
 
-	ThreadPool* tp = new ThreadPool();
-	tp->Start();
-
+	cv::Mat frame;
 	int indeximg = 0;
+
+	AsciiThreadPool* tp = new AsciiThreadPool();
+	tp->Start();
 
 	while (true) {
 		cv::Mat frame;
@@ -32,7 +34,7 @@ void FramesToAscii(string videopath, string skinname, int fontbgr[], int bgbgr[]
 			break;
 		}
 		else {
-			IMG2ASCIIJOB job;
+			ASCIIJOB job;
 			job.img = frame;
 			job.indeximg = indeximg;
 			job.charsize[0] = charsize[0];
@@ -49,11 +51,9 @@ void FramesToAscii(string videopath, string skinname, int fontbgr[], int bgbgr[]
 	delete tp;
 }
 
-void ImageToAscii(cv::Mat img, int imgindex, int charsize[2], vector<CHARLIST> charlist) {
+void ImageToAscii(cv::Mat img, int imgindex, const int charsize[2], vector<CHARLIST> charlist) {
 
-
-
-	int charh = charsize[0]/2;
+int charh = charsize[0]/2;
 	int charw = charsize[1]/2;
 
 	int h = img.size[0];
@@ -97,4 +97,84 @@ void ImageToAscii(cv::Mat img, int imgindex, int charsize[2], vector<CHARLIST> c
 		}
 	}
 	cv::imwrite(TempFramesOutDir+to_string(imgindex) + ".jpg", img);
+}
+
+void FramesToEdge(const string videopath, int linebgr[], int bgbgr[], int lowThreshold=100, int ratio=3) {
+	InitTemp();
+
+	cv::VideoCapture cap(videopath);
+
+	cv::Mat frame;
+	int indexnum = 0;
+
+	EdgeThreadPool* tp = new EdgeThreadPool();
+	tp->Start();
+
+	while (true) {
+		cv::Mat frame;
+		// Capture frame-by-frame
+		cap >> frame;
+
+
+
+		// If the frame is empty, break immediately
+		if (frame.empty()) {
+			break;
+		}
+		else {
+			EDGEJOB job;
+			job.img = frame;
+			job.indexnum = indexnum;
+			job.linebgr[0] = linebgr[0];
+			job.linebgr[1] = linebgr[1];
+			job.linebgr[2] = linebgr[2];
+			job.bgbgr[0] = bgbgr[0];
+			job.bgbgr[1] = bgbgr[1];
+			job.bgbgr[2] = bgbgr[2];
+			job.lowThreshold = lowThreshold;
+			job.ratio = ratio;
+			tp->QueueJob(job);
+			indexnum++;
+		}
+	}
+	while (!tp->busy()) {
+
+	}
+	tp->Stop();
+	delete tp;
+}
+
+
+void ImageEdgeFilter(cv::Mat img, const int indexnum, const int linebgr[], const int bgbgr[], const int lowThreshold, const int ratio) {
+
+	cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+
+	cv::blur(img, img, cv::Size(3, 3));
+	cv::Canny(img, img, lowThreshold, lowThreshold * ratio, 3);
+
+	const int h = img.size[0];
+	const int w = img.size[1];
+
+	cv::cvtColor(img, img, cv::COLOR_GRAY2BGR);
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+
+
+			if (img.at<cv::Vec3b>(y, x)[0] == 255) {
+				img.at<cv::Vec3b>(y, x)[0] = linebgr[0];
+				img.at<cv::Vec3b>(y, x)[1] = linebgr[1];
+				img.at<cv::Vec3b>(y, x)[2] = linebgr[2];
+			}
+			else {
+				img.at<cv::Vec3b>(y, x)[0] = bgbgr[0];
+				img.at<cv::Vec3b>(y, x)[1] = bgbgr[1];
+				img.at<cv::Vec3b>(y, x)[2] = bgbgr[2];
+			}
+
+		}
+	}
+
+
+	cv::imwrite(TempFramesOutDir + to_string(indexnum) + ".jpg", img);
+
 }

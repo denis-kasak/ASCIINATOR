@@ -35,5 +35,8 @@
     <ClInclude Include="asciinator.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

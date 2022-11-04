@@ -14,31 +14,26 @@ struct CHARLIST {
 	cv::Mat charimg;
 };
 
-struct IMG2ASCIIJOB {
+struct ASCIIJOB {
     cv::Mat img;
     int indeximg;
     int charsize[2];
     vector<CHARLIST> charlist;
 };
 
-vector<CHARLIST> CreateColor(int [], int [], string, vector<CHARLIST>);
-void InitTemp();
-void ImageToAscii(cv::Mat, int, int[2], vector<CHARLIST>);
-void FramesToAscii(string videopath, string skinname, int fontbgr[], int bgbgr[]);
-
-class ThreadPool {
-public:
-    void Start();
-    void QueueJob(IMG2ASCIIJOB job);
-    void Stop();
-    bool busy();
-
-private:
-    void ThreadLoop();
-
-    bool should_terminate = false;           // Tells threads to stop looking for jobs
-    std::mutex queue_mutex;                  // Prevents data races to the job queue
-    std::condition_variable mutex_condition; // Allows threads to wait on new jobs or termination 
-    std::vector<std::thread> threads;
-    std::queue<IMG2ASCIIJOB> jobs;
+struct EDGEJOB {
+    cv::Mat img;
+    int indexnum;
+    int linebgr[3];
+    int bgbgr[3];
+    int lowThreshold;
+    int ratio;
 };
+
+
+vector<CHARLIST> CreateColor(const int fontbgr[], const int bgbgr[], const string skinname, vector<CHARLIST> charlist);
+void InitTemp();
+void ImageToAscii(cv::Mat img, int imgindex, const int charsize[2], vector<CHARLIST> charlist);
+void ImageEdgeFilter(cv::Mat img, const int indexnum, const int linebgr[], const int bgbgr[], const int lowThreshold, const int ratio);
+void FramesToAscii(const string videopath, const string skinname, int fontbgr[], int bgbgr[]);
+void FramesToEdge(const string videopath, int linebgr[], int bgbgr[], int lowThreshold, int ratio);
